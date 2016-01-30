@@ -73,6 +73,10 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
             }
             return path.join(' ');
         },
+        line: function(e){
+            var cx=e.num('cx'), cy=e.num('cy'), r=e.num('r'), rot=e.rad('rot');
+            return ['M', cx, cy, cos(rot) * 2 * r + cx, sin(rot) * 2 * r + cy].join(' ');
+        },
         coffin: function(cx, cy, r){
         },
         crescent: function(cx, cy, r){
@@ -111,6 +115,12 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
             .moveTo(cx, cy).setup();
     };
 
+    Paper.prototype.line = function(cx, cy, r, rot){
+        return this.path()
+            .attr('r', r).attr('rot', rot || 0).attr('type', 'line')
+            .moveTo(cx, cy).setup();
+    };
+
     // Element extensions
 
     Element.prototype.setup = function(){
@@ -123,6 +133,10 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
 
     Element.prototype.rad = function(name){
         return rad(this.num(name));
+    };
+
+    Element.prototype.ease = function(name){
+        return mina[this.attr(name)] || mina.easeinout; // get easing
     };
 
     Element.prototype.update = function(){
@@ -144,12 +158,29 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
     Element.prototype.rotate = function(deg){
         return this.attr('rot', this.num('rot') + deg).update();
     };
+
+    Element.prototype.pulse = function(){
+        var dur=this.num('dur') || 1000, color=this.attr('color') || '#00F';
+        var easing=this.ease('ease');
+        this.animate({stroke: color, strokeWidth: 7}, dur, easing, this.unPulse)
+    };
+
+    Element.prototype.unPulse = function(){
+        var dur=this.num('dur') || 1000, color='#000';
+        var easing=this.ease('ease');
+        this.animate({stroke: color, strokeWidth: 5}, dur, easing, this.endPulse);
+    }
+
+    Element.prototype.endPulse = function(){
+        console.log('end pulse');
+    }
 });
 
 var ATTRS = {
     fill: 'transparent',
     stroke: '#000',
-    strokeWidth: 5
+    strokeWidth: 5,
+    color: '#00F', // for animation
 }
 
 var s = Snap(WIDTH, HEIGHT);
@@ -169,4 +200,9 @@ var star5 = s.star(125, 350, 25, 5).attr(ATTRS);
 var star7 = s.star(200, 50, 25, 7).attr(ATTRS);
 var spiral1 = s.spiral(200, 125, 25, 500, 3).attr(ATTRS);
 var spiral2 = s.spiral(200, 200, 25, 20, .75).attr(ATTRS);
+
+var line1 = s.line(275, 50, 25).attr(ATTRS);
+var line2 = s.line(275, 125, 25, 45).attr(ATTRS);
+var line3 = s.line(275, 200, 25, -45).attr(ATTRS);
+var line4 = s.line(275, 275, 25, 90).attr(ATTRS);
 
