@@ -206,3 +206,5 @@ var line2 = s.line(275, 125, 25, 45).attr(ATTRS);
 var line3 = s.line(275, 200, 25, -45).attr(ATTRS);
 var line4 = s.line(275, 275, 25, 90).attr(ATTRS);
 
+line1.node.classList.add('attachtome')
+
