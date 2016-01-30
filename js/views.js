@@ -1,4 +1,4 @@
-tour = new Shepherd.Tour({defaults: {
+/*tour = new Shepherd.Tour({defaults: {
     classes: 'shepherd-theme-default',
     //scrollTo: true
   }});
@@ -15,4 +15,4 @@ tour.addStep('example-step', {
   ]
 });
 
-tour.start()
+tour.start()*/
