@@ -3,12 +3,62 @@ var HEIGHT = window.innerHeight;
 var GRIDSIZE = 25;
 var PI = Math.PI, cos = Math.cos, sin = Math.sin, rad=Snap.rad;
 
+// Utilities
+
 function randint(max){
     return Math.floor(Math.random() * max);
 }
 
+function randcolor(){
+    return 'hsl(' + randint(360) + ', 50%, 50%)';
+}
+
 function choice(list){
     return list[randint(list.length)];
+}
+
+// properly delete from a list
+function deleteItem(list, item) {
+    var idx = list.indexOf(item);
+    if (idx > -1) {
+        list.splice(idx, 1);
+    }
+    return item;
+}
+
+function randomId() {
+    // Based on Paul Irish's random hex color:http://www.paulirish.com/2009/random-hex-color-code-snippets/
+    // Theoretically could return non-unique values, not going to let that keep me up at night
+    return 'k' + Math.floor(Math.random() * 16777215).toString(16); // 'k' because ids have to start with a letter
+}
+
+
+// build wired groups when there is a change
+
+var groups = {};
+
+function wireGroups(){
+    var unwiredElements = [].slice.call(Snap.selectAll('path'));
+    groups = {};
+    // Throw away existing groups and start over
+    unwiredElements.forEach(function(e){
+        e.unGroup();
+    });
+    // build all the groups
+    unwiredElements.forEach(function(e){
+        var group = e.visitGroup(randomId());
+        if (! groups[group]){
+            groups[group] = [];
+        }
+        groups[group].push(e);
+    });
+    // give each group a colour to show this is working
+    Object.keys(groups).forEach(function(group){
+        var colour = randcolor();
+        groups[group].forEach(function(e){
+            e.attr('stroke', colour);
+        });
+    });
 }
 
 Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
@@ -21,21 +71,7 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
     }
 
     function onDragEnd(evt){
-        // snap to grid
-        var x = this.num('cx'), y = this.num('cy');
-        var dX = x % GRIDSIZE;
-        if (dX < GRIDSIZE / 2){
-            x -= dX;
-        }else{
-            x += GRIDSIZE - dX;
-        }
-        var dY = y % GRIDSIZE;
-        if (dY < GRIDSIZE / 2){
-            y -= dY;
-        }else{
-            y += GRIDSIZE - dY;
-        }
-        this.moveTo(x,y);
+        this.snapToGrid();
     }
 
     var pathFns = {
@@ -167,6 +203,23 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
         return this.attr('rot', this.num('rot') + deg).update();
     };
 
+    Element.prototype.snapToGrid = function(){
+        var x = this.num('cx'), y = this.num('cy');
+        var dX = x % GRIDSIZE;
+        if (dX < GRIDSIZE / 2){
+            x -= dX;
+        }else{
+            x += GRIDSIZE - dX;
+        }
+        var dY = y % GRIDSIZE;
+        if (dY < GRIDSIZE / 2){
+            y -= dY;
+        }else{
+            y += GRIDSIZE - dY;
+        }
+        this.moveTo(x,y);
+    };
+
     Element.prototype.pulse = function(){
         var dur=this.num('dur') || 1000, color=this.attr('color') || '#00F';
         var easing=this.ease('ease');
@@ -178,10 +231,26 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
         var easing=this.ease('ease');
         this.animate({stroke: color, strokeWidth: 5}, dur, easing, this.endPulse);
         choice(Snap.selectAll('path')).pulse();
-    }
+    };
 
     Element.prototype.endPulse = function(){
-    }
+    };
+
+    Element.prototype.visitGroup = function(group){
+        if (this.node.hasAttribute('group')){
+            return this.attr('group');
+        }
+        this.attr('group', group);
+        this.findConnected().forEach(function(e){
+            e.visitGroup(group);
+        });
+        return group;
+    };
+
+    Element.prototype.unGroup = function(){
+        this.node.removeAttribute('group');
+    };
+
 });
 
 var ATTRS = {
