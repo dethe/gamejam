@@ -118,8 +118,8 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
             return path.join(' ');
         },
         line: function(e){
-            var cx=e.num('cx'), cy=e.num('cy'), r=e.num('r'), rot=e.rad('rot');
-            return ['M', cx, cy, cos(rot) * 2 * r + cx, sin(rot) * 2 * r + cy].join(' ');
+            var cx=e.num('cx'), cy=e.num('cy'), x2=e.num('x2'), y2=e.num('y2');
+            return ['M', cx, cy, cx+x2, cy+y2].join(' ');
         },
         coffin: function(cx, cy, r){
         },
@@ -159,9 +159,9 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
             .moveTo(cx, cy).setup();
     };
 
-    Paper.prototype.line = function(cx, cy, r, rot){
+    Paper.prototype.line = function(cx, cy, x2, y2){
         return this.path()
-            .attr('r', r).attr('rot', rot || 0).attr('type', 'line')
+            .attr('x2', x2).attr('y2', y2).attr('type', 'line')
             .moveTo(cx, cy).setup();
     };
 
@@ -278,10 +278,10 @@ var star7 = s.star(200, 50, 25, 7).attr(ATTRS);
 var spiral1 = s.spiral(200, 125, 25, 500, 3).attr(ATTRS);
 var spiral2 = s.spiral(200, 200, 25, 20, .75).attr(ATTRS);
 
-var line1 = s.line(275, 50, 25).attr(ATTRS);
-var line2 = s.line(275, 125, 25, 45).attr(ATTRS);
+var line1 = s.line(275, 50, 25, 25).attr(ATTRS);
+/*var line2 = s.line(275, 125, 25, 45).attr(ATTRS);
 var line3 = s.line(275, 200, 25, -45).attr(ATTRS);
 var line4 = s.line(275, 275, 25, 90).attr(ATTRS);
 
-line1.node.classList.add('attachtome')
+line1.node.classList.add('attachtome')*/
 
