@@ -3,6 +3,14 @@ var HEIGHT = window.innerHeight;
 var GRIDSIZE = 25;
 var PI = Math.PI, cos = Math.cos, sin = Math.sin, rad=Snap.rad;
 
+function randint(max){
+    return Math.floor(Math.random() * max);
+}
+
+function choice(list){
+    return list[randint(list.length)];
+}
+
 Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
 
     function onDrag(dx, dy, x, y, evt){
@@ -169,10 +177,10 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
         var dur=this.num('dur') || 1000, color='#000';
         var easing=this.ease('ease');
         this.animate({stroke: color, strokeWidth: 5}, dur, easing, this.endPulse);
+        choice(Snap.selectAll('path')).pulse();
     }
 
     Element.prototype.endPulse = function(){
-        console.log('end pulse');
     }
 });
 
