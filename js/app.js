@@ -244,6 +244,7 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
     };
 
     Element.prototype.num = function(name){
+        //console.log(name+': '+this.attr(name))
         return Number(this.attr(name));
     };
 
@@ -331,13 +332,13 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
     Element.prototype.pulse = function(){
         var dur=this.num('dur') || 1000, color=this.attr('color') || '#00F';
         var easing=this.ease('ease');
-        this.animate({stroke: color, strokeWidth: 7}, dur, easing, this.unPulse)
+        this.animate({stroke: color, /*strokeWidth: 7*/}, dur, easing, this.unPulse)
     };
 
     Element.prototype.unPulse = function(){
         var dur=this.num('dur') || 1000, color='#000';
         var easing=this.ease('ease');
-        this.animate({stroke: color, strokeWidth: 5}, dur, easing, this.endPulse);
+        this.animate({stroke: color, /*strokeWidth: 5*/}, dur, easing, this.endPulse);
     };
 
     Element.prototype.endPulse = function(){

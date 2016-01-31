@@ -65,6 +65,7 @@ views.level_select = {
 views.game = {
 	init: function(){
 		this.s = Snap(0,0)
+		running = false;
 		root_element.innerHTML = 	'<button class="btn back fa fa-angle-left" onclick="changeView(views.level_select)"></button>'+
 									'<button class="btn fa fa-rotate-left" style="right:260px;" onclick="if(selected!=undefined && !running){selected.rotate(-90)}"></button>'+
 									'<button class="btn fa fa-rotate-right" style="right:180px;" onclick="if(selected!=undefined && !running){selected.rotate(90)}"></button>'+
@@ -106,8 +107,48 @@ function toggleRun(el){
 				asterisks.push(views.game.shapes[i])
 			}
 		}
+
+		var speed = 500;
+		function pulse(signal, adj){
+			//var adj = a.adjacent[i2]
+			var closex, closey;
+			if(adj.attr('type') == 'line'){
+				var g = distance(signal.num('cx'), signal.num('cy'), adj.num('cx') + adj.num('x2'), adj.num('cy') + adj.num('y2')) < distance(signal.num('cx'), signal.num('cy'), adj.num('cx'), adj.num('cy'))
+
+				var points = [[adj.num('cx'), adj.num('cy')], [adj.num('cx') + adj.num('x2'), adj.num('cy') + adj.num('y2')]]
+				var closepoint = points[g+0]
+				var farpoint = points[!g+0]
+				//closex = closepoint[0]
+				//closey = closepoint[1]
+				signal.animate({cx:closepoint[0]+'px', cy:closepoint[1]+'px'}, speed, mina.linear, function(){
+					adj.pulse()
+					this.animate({cx:farpoint[0]+'px', cy:farpoint[1]+'px'}, speed)
+					if(adj.adjacent.length > 1){
+						pulse(this, adj.adjacent[1])
+					}
+				})
+			}else{
+				signal.animate({cx:adj.num('cx')+'px', cy:adj.num('cy')+'px'}, speed, mina.linear, function(){
+					adj.pulse()
+					if(adj.adjacent.length > 1){
+						pulse(signal, adj.adjacent[1])
+					}
+				})
+				
+				//closex = 
+				//closey = adj.num('cy')
+			}
+			//console.log(closex, closey)
+			//signal.animate({cx:closex+'px', cy:closey+'px'}, 200)
+			//adj.pulse()
+		}
 		for(var i = 0; i < asterisks.length; i++){
+			var a = asterisks[i]
 			asterisks[i].pulse()
+			for(var i2 = 0; i2 < a.adjacent.length; i2++){
+				var signal = views.game.s.circle(a.num('cx'), a.num('cy'), 7)
+				pulse(signal, a.adjacent[i])
+			}
 		}
 		console.log(asterisks)
 		gameloop()
