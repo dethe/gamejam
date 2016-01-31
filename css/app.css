@@ -30,3 +30,38 @@ html, body{
 #modal > footer{
 	border-top:1px solid #999;
 }
+
+.btn{
+	outline:none;
+	border:none;
+	padding:10px;
+	width:60px;
+	height:60px;
+	position:absolute;
+	border-radius:50%;
+	cursor:pointer;
+	background:none;
+	top:20px;
+	transition:all .2s;
+}
+.btn::before{
+	font-size:20px;
+}
+.btn:hover{
+	background-color:#eee;
+}
+.btn.back{
+	left:20px;
+}
+
+.levelselect, .titlemenu{
+	margin:auto;
+	margin-top:100px;
+	width:500px;
+	text-align:center;
+}
+
+.levelselect h1, .titlemenu h1{
+	font-size:40px;
+	margin-bottom:25px;
+}

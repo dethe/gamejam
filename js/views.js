@@ -36,7 +36,10 @@ function changeView(v){
 
 views.title_screen = {
 	init: function(){
-		root_element.innerHTML = '<button onclick="changeView(views.level_select)">level select</button>'
+		root_element.innerHTML = 	'<div class="titlemenu">'+
+										'<h1>Verve</h1>'+
+										'<button onclick="changeView(views.level_select)">levels</button>'+
+									'</div>'
 	},
 	tini: function(){
 
@@ -45,10 +48,13 @@ views.title_screen = {
 
 views.level_select = {
 	init: function(){
-		var html = '<button onclick="changeView(views.title_screen)"><</button><br/>'
+		var html = 	'<button class="btn back fa fa-angle-left" onclick="changeView(views.title_screen)"></button><br/>'+
+					'<div class="levelselect">'+
+						'<h1>Levels</h1>'
 		for(var i = 0; i < levels.length; i++){
-			html += '<button onclick="current_level = '+i+'; changeView(views.game)">'+i+'</button>'
+			html += 	'<button onclick="current_level = '+i+'; changeView(views.game)">'+i+'</button>'
 		}
+		html += 	'</div>'
 		root_element.innerHTML = html
 	},
 	tini: function(){
@@ -59,6 +65,9 @@ views.level_select = {
 views.game = {
 	init: function(){
 		this.s = Snap(0,0)
+		root_element.innerHTML = 	'<button class="btn back fa fa-angle-left" onclick="changeView(views.level_select)"></button>'+
+									'<button class="btn fa fa-rotate-left" style="right:100px;" onclick="if(selected!=undefined){selected.rotate(-90)}"></button>'+
+									'<button class="btn fa fa-rotate-right" style="right:20px;" onclick="if(selected!=undefined){selected.rotate(90)}"></button>'
 		root_element.appendChild(this.s.node)
 
 		this.level = levels[current_level]
