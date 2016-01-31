@@ -58,6 +58,7 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
     }
 
     function onDragEnd(evt){
+        selected = this;
         this.snapToGrid();
         this.joinGroup(randcolor());
     }
@@ -171,7 +172,10 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
         return mina[this.attr(name)] || mina.easeinout; // get easing
     };
 
-    Element.prototype.update = function(){
+    Element.prototype.update = function(b){
+        if(b){
+            return this.animate({d: pathFns[this.attr('type')](this)}, 100, this.ease(), this.update)
+        }
         return this.attr('d', pathFns[this.attr('type')](this));
     }
 
@@ -184,11 +188,11 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
     };
 
     Element.prototype.rotateTo = function(deg){
-        return this.attr('rot', deg).update();
+        return this.attr('rot', deg).update(true);
     };
 
     Element.prototype.rotate = function(deg){
-        return this.attr('rot', this.num('rot') + deg).update();
+        return this.attr('rot', this.num('rot') + deg).update(true);
     };
 
     Element.prototype.snapToGrid = function(){
