@@ -74,8 +74,8 @@ views.game = {
 		for(var i = 0; i < this.level.shapes.length; i++){
 			this.s[this.level.shapes[i][0]].apply(this.s, this.level.shapes[i].slice(1)).attr(ATTRS)
 		}
-		this.resize()
-		window.addEventListener('resize', this.resize)
+		this.resize();
+		window.addEventListener('resize', this.resize.bind(this))
 	},
 	tini: function(){
 		this.s.remove()
