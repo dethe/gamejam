@@ -1,7 +1,7 @@
 var WIDTH = window.innerWidth;
 var HEIGHT = window.innerHeight;
 var GRIDSIZE = 25;
-var PI = Math.PI, cos = Math.cos, sin = Math.sin, rad=Snap.rad;
+var PI=Math.PI, cos=Math.cos, sin=Math.sin, abs=Math.abs, rad=Snap.rad;
 
 var selected; //"selected"
 
@@ -12,7 +12,7 @@ function randint(max){
 }
 
 function randcolor(){
-    return 'hsl(' + randint(360) + ', 50%, 50%)';
+    return Snap.hsl(randint(360), 50, 50);
 }
 
 function choice(list){
@@ -34,35 +34,6 @@ function randomId() {
     return 'k' + Math.floor(Math.random() * 16777215).toString(16); // 'k' because ids have to start with a letter
 }
 
-
-// build wired groups when there is a change
-
-var groups = {};
-
-function wireGroups(){
-    var unwiredElements = [].slice.call(Snap.selectAll('path'));
-    groups = {};
-    // Throw away existing groups and start over
-    unwiredElements.forEach(function(e){
-        e.unGroup();
-    });
-    // build all the groups
-    unwiredElements.forEach(function(e){
-        var group = e.visitGroup(randomId());
-        if (! groups[group]){
-            groups[group] = [];
-        }
-        groups[group].push(e);
-    });
-    // give each group a colour to show this is working
-    Object.keys(groups).forEach(function(group){
-        var colour = randcolor();
-        groups[group].forEach(function(e){
-            e.attr('stroke', colour);
-        });
-    });
-}
-
 Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
     var prevdx, prevdy;
     function onDrag(dx, dy, x, y, evt){
@@ -81,6 +52,7 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
 
     function onDragEnd(evt){
         this.snapToGrid();
+        this.joinGroup(randcolor());
     }
 
     var pathFns = {
@@ -245,19 +217,44 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
     Element.prototype.endPulse = function(){
     };
 
-    Element.prototype.visitGroup = function(group){
-        if (this.node.hasAttribute('group')){
-            return this.attr('group');
+    function distance(x1, y1, x2, y2){
+        var val = Math.sqrt(Math.pow(x2-x1, 2) + Math.pow(y2-y1, 2));
+        console.log(val);
+        return val;
+    }
+
+    Element.prototype.intersects = function(e){
+        var selfType = this.attr('type');
+        var otherType = e.attr('type');
+        if (selfType === 'line' && otherType === 'line'){
+            return !! Snap.path.intersection(this, e).length;
+        }else if (selfType === 'line'){
+            var x1=this.num('cx'), x2=this.num('x2')+x1, y1=this.num('cy'), y2=this.num('y2')+y1;
+            var ex=e.num('cx'), ey=e.num('cy');
+            return ((distance(x1, y1, ex, ey) < 30) ||
+                    (distance(x2, y2, ex, ey) < 30));
+        }else if (otherType === 'line'){
+            var x1=e.num('cx'), x2=e.num('x2')+x1, y1=e.num('cy'), y2=e.num('y2')+y1;
+            var tx=this.num('cx'), ty=this.num('cy');
+            return ((distance(x1, y1, tx, ty) < 30) ||
+                    (distance(x2, y2, tx, ty) < 30));
+        }else{
+            return (distance(this.num('cx'), this.num('cy'), e.num('cx'), e.num('cy')) < 40);
         }
-        this.attr('group', group);
-        this.findConnected().forEach(function(e){
-            e.visitGroup(group);
-        });
-        return group;
     };
 
-    Element.prototype.unGroup = function(){
-        this.node.removeAttribute('group');
+    Element.prototype.joinGroup = function(color){
+        var self = this;
+        self.attr('stroke', color);
+        var connected = [].slice.call(Snap.selectAll('path')).filter(function(e){
+            if (self === e){
+                return false;
+            }
+            return self.intersects(e);
+        });
+        connected.forEach(function(e){
+            e.attr('stroke', color);
+        });
     };
 
 });
@@ -271,28 +268,26 @@ var ATTRS = {
 
 var s = Snap(WIDTH, HEIGHT);
 
-var circle = s.rpolygon(50,50,25, 20).attr(ATTRS);
-var diamond = s.rpolygon(50, 125, 25, 4).attr(ATTRS);
-var asterisk1 = s.asterisk(50, 200, 25, 5).attr(ATTRS);
-var asterisk2 = s.asterisk(50, 275, 25, 6).attr(ATTRS);
-var asterisk3 = s.asterisk(50, 350, 25, 8).attr(ATTRS);
+var circle = s.rpolygon(-150,-150,25, 20).attr(ATTRS);
+var diamond = s.rpolygon(-150, -75, 25, 4).attr(ATTRS);
+var asterisk1 = s.asterisk(-150, 0, 25, 5).attr(ATTRS);
+var asterisk2 = s.asterisk(-150, 75, 25, 6).attr(ATTRS);
+var asterisk3 = s.asterisk(-150, 150, 25, 8).attr(ATTRS);
 
-var poly3 = s.rpolygon(125, 50, 25, 3).attr(ATTRS);
-var poly4 = s.rpolygon(125, 125, 25, 4).attr(ATTRS);
-var poly5 = s.rpolygon(125, 200, 25, 5).attr(ATTRS);
-var poly6 = s.rpolygon(125, 275, 25, 6).attr(ATTRS);
-var star5 = s.star(125, 350, 25, 5).attr(ATTRS);
+var poly3 = s.rpolygon(-75, -150, 25, 3).attr(ATTRS);
+var poly4 = s.rpolygon(-75, -75, 25, 4).attr(ATTRS);
+var poly5 = s.rpolygon(-75, 0, 25, 5).attr(ATTRS);
+var poly6 = s.rpolygon(-75, 75, 25, 6).attr(ATTRS);
+var star5 = s.star(-75, 150, 25, 5).attr(ATTRS);
 
-var star7 = s.star(200, 50, 25, 7).attr(ATTRS);
-var spiral1 = s.spiral(200, 125, 25, 500, 3).attr(ATTRS);
-var spiral2 = s.spiral(200, 200, 25, 20, .75).attr(ATTRS);
+var star7 = s.star(0, -150, 25, 7).attr(ATTRS);
+var spiral1 = s.spiral(0, -75, 25, 500, 3).attr(ATTRS);
+var spiral2 = s.spiral(0, 0, 25, 20, .75).attr(ATTRS);
 
-var line1 = s.line(275, 50, 25, 25).attr(ATTRS);
-/*var line2 = s.line(275, 125, 25, 45).attr(ATTRS);
-var line3 = s.line(275, 200, 25, -45).attr(ATTRS);
-var line4 = s.line(275, 275, 25, 90).attr(ATTRS);
-
-line1.node.classList.add('attachtome')*/
+var line1 = s.line(75, -150, 25, 25).attr(ATTRS);
+var line2 = s.line(75, -75, 25, 0).attr(ATTRS);
+var line3 = s.line(75, 0, 25, -25).attr(ATTRS);
+var line4 = s.line(75, 75, 0, 25).attr(ATTRS);
 
 
 function resize(){
