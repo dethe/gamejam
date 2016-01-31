@@ -65,6 +65,11 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
     }
 
     function onDragStart(x, y, evt){
+        var self = this;
+        this.adjacent.forEach(function(e){
+            deleteItem(e.adjacent, self);
+        });
+        this.adjacent = [];
         if(!running){
             prevdx = prevdy = 0;
             if (evt.metaKey){
