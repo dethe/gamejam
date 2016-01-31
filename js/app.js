@@ -28,6 +28,13 @@ function deleteItem(list, item) {
     return item;
 }
 
+function group(id){
+    return [].slice.call(Snap.selectAll('path')).filter(function(e){
+        return e.attr('group') === id;
+    });
+
+}
+
 function randomId() {
     // Based on Paul Irish's random hex color:http://www.paulirish.com/2009/random-hex-color-code-snippets/
     // Theoretically could return non-unique values, not going to let that keep me up at night
@@ -219,7 +226,6 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
 
     function distance(x1, y1, x2, y2){
         var val = Math.sqrt(Math.pow(x2-x1, 2) + Math.pow(y2-y1, 2));
-        console.log(val);
         return val;
     }
 
@@ -246,6 +252,8 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
     Element.prototype.joinGroup = function(color){
         var self = this;
         self.attr('stroke', color);
+        self.attr('group', '');
+        var group = null;
         var connected = [].slice.call(Snap.selectAll('path')).filter(function(e){
             if (self === e){
                 return false;
@@ -253,9 +261,44 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
             return self.intersects(e);
         });
         connected.forEach(function(e){
-            e.attr('stroke', color);
+            if (!group){
+                if (e.attr('group')){
+                    console.log('joining group %s', e.attr('group'));
+                    group = e.attr('group');
+                    self.attr('group', group);
+                    color = e.attr('stroke');
+                    self.attr('stroke', color);
+                }else{
+                    group = randomId();
+                    console.log('forming a new group %s', group);
+                    self.attr('group', group);
+                    e.attr('group', group);
+                    e.attr('stroke', color);
+                }
+            }else{
+                if (e.attr('group') === group){
+                    // do nothing
+                }else if (!e.attr('group')){
+                    e.attr('group', group);
+                    e.attr('stroke', color);
+                    console.log('adopting an orphan node');
+                }else{
+                    // adopt group
+                    var searchGroup = e.attr('group');
+                    var adoptees = [].slice.call(Snap.selectAll('path')).filter(function(e){
+                        return e.attr('group') === searchGroup;
+                    });
+                    console.log('adopting %s nodes from group', adoptees.length, searchGroup);
+                    adoptees.forEach(function(e){
+                        e.attr('group', group);
+                        e.attr('stroke', color);
+                    });
+
+                }
+            }
         });
     };
+
 
 });
 
