@@ -74,8 +74,9 @@ views.game = {
 		root_element.appendChild(this.s.node)
 
 		this.level = levels[current_level]
+		this.shapes = []
 		for(var i = 0; i < this.level.shapes.length; i++){
-			this.s[this.level.shapes[i][0]].apply(this.s, this.level.shapes[i].slice(1)).attr(ATTRS)
+			this.shapes.push( this.s[this.level.shapes[i][0]].apply(this.s, this.level.shapes[i].slice(1)).attr(ATTRS) )
 		}
 		this.resize();
 		window.addEventListener('resize', this.resize.bind(this))
@@ -98,11 +99,22 @@ function toggleRun(el){
 	if(running){
 		el.classList.remove('fa-play')
 		el.classList.add('fa-stop')
+
+		var asterisks = []
+		for(var i = 0; i < views.game.shapes.length; i++){
+			if(views.game.shapes[i].attr('type') == 'asterisk'){
+				asterisks.push(views.game.shapes[i])
+			}
+		}
+		for(var i = 0; i < asterisks.length; i++){
+			asterisks[i].pulse()
+		}
+		console.log(asterisks)
+		gameloop()
 	}else{
 		el.classList.add('fa-play')
 		el.classList.remove('fa-stop')
 	}
-	gameloop()
 }
 
 function gameloop(){
