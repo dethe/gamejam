@@ -107,7 +107,14 @@ function toggleRun(el){
 			}
 		}
 		for(var i = 0; i < asterisks.length; i++){
+			var a = asterisks[i]
 			asterisks[i].pulse()
+			for(var i2 = 0; i2 < a.adjacent.length; i2++){
+				var adj = a.adjacent[i2]
+				console.log(adj)
+				views.game.s.circle(a.num('cx'), a.num('cy'), 7).animate({cx:adj.num('cx'), cy:adj.num('cy')})
+				adj.pulse()
+			}
 		}
 		console.log(asterisks)
 		gameloop()
