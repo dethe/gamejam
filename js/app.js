@@ -101,10 +101,12 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
         spiral: function(e){
             var cx=e.num('cx'), cy=e.num('cy'), r=e.num('r'), num=e.num('num'), len=e.num('len'), rot=e.rad('rot');
             var theta = PI * 2 / num;
+            var flipH = e.bool('flipH') ? -1 : +1, flipV = e.bool('flipV') ? -1 : +1;
             var dR = r / (num * len);
             var path = ['M'];
             for (var i = 0; i < (num * len); i++){
-                path.push(cos(theta * i + rot) * (dR * i) + cx, sin(theta * i + rot) * (dR * i) + cy);
+                path.push(cos(theta * i + rot) * (dR * i) * flipH + cx,
+                          sin(theta * i + rot) * (dR * i) * flipV + cy);
             }
             return path.join(' ');
         },
@@ -170,6 +172,19 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
         return rad(this.num(name));
     };
 
+    Element.prototype.bool = function(name, val){
+        if (typeof(val) === 'undefined'){
+            return this.attr(name) === 'true';
+        }else{
+            if (val){
+                this.attr(name, 'true');
+            }else{
+                this.node.removeAttribute(name);
+            }
+        }
+        return this;
+    };
+
     Element.prototype.ease = function(name){
         return mina[this.attr(name)] || mina.easeinout; // get easing
     };
@@ -192,6 +207,24 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
 
     Element.prototype.rotate = function(deg){
         return this.attr('rot', this.num('rot') + deg).update();
+    };
+
+    Element.prototype.flipH = function(){
+        if (this.node.hasAttribute('flipH')){
+            this.node.removeAttribute('flipH');
+        }else{
+            this.attr('flipH', true);
+        }
+        return this.update();
+    };
+
+    Element.prototype.flipV = function(){
+        if (this.node.hasAttribute('flipV')){
+            this.node.removeAttribute('flipV');
+        }else{
+            this.attr('flipV', true);
+        }
+        return this.update();
     };
 
     Element.prototype.snapToGrid = function(){
@@ -306,7 +339,7 @@ var ATTRS = {
 var s = Snap(WIDTH, HEIGHT);
 
 var circle = s.rpolygon(-150,-150,25, 20).attr(ATTRS);
-var diamond = s.rpolygon(-150, -75, 25, 4).attr(ATTRS);
+var star7 = s.star(-150, -75, 25, 7).attr(ATTRS);
 var asterisk1 = s.asterisk(-150, 0, 25, 5).attr(ATTRS);
 var asterisk2 = s.asterisk(-150, 75, 25, 6).attr(ATTRS);
 var asterisk3 = s.asterisk(-150, 150, 25, 8).attr(ATTRS);
@@ -317,9 +350,11 @@ var poly5 = s.rpolygon(-75, 0, 25, 5).attr(ATTRS);
 var poly6 = s.rpolygon(-75, 75, 25, 6).attr(ATTRS);
 var star5 = s.star(-75, 150, 25, 5).attr(ATTRS);
 
-var star7 = s.star(0, -150, 25, 7).attr(ATTRS);
-var spiral1 = s.spiral(0, -75, 25, 500, 3).attr(ATTRS);
-var spiral2 = s.spiral(0, 0, 25, 20, .75).attr(ATTRS);
+var spiral1 = s.spiral(0, -150, 25, 500, 3).attr(ATTRS);
+var spiral2 = s.spiral(0, -75, 25, 20, .75).attr(ATTRS);
+var spiral3 = s.spiral(0, 0, 25, 20, .75).flipH().attr(ATTRS);
+var spiral4 = s.spiral(0, 75, 25, 20, .75).flipV().attr(ATTRS);
+var spiral5 = s.spiral(0, 150, 25, 20, .75).flipH().flipV().attr(ATTRS);
 
 var line1 = s.line(75, -150, 25, 25).attr(ATTRS);
 var line2 = s.line(75, -75, 25, 0).attr(ATTRS);
