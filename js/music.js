@@ -1,3 +1,16 @@
+var mute = false;
+
+function toggleMute(el){
+    mute = !mute;
+    if(el.classList.contains('fa-volume-up')){
+        el.classList.remove('fa-volume-up')
+        el.classList.add('fa-volume-off')
+    }else{
+        el.classList.remove('fa-volume-off')
+        el.classList.add('fa-volume-up')
+    }
+}
+
 var ambience = new Wad({
     source : 'sine',
     volume: 0.25,
@@ -30,7 +43,7 @@ var notes = ['A#2','B2','C3','D3','E3','F#3','G3','A#3','B3','A#3','G3','F#3','E
 var notes2 = ['A#3','B3','C4','D4','E4','F#4','G4','A#4','B4','A#4','G4','F#4','E4','D4','C4','B3']
 
 setInterval(function(){
-	if(Math.random() > 0){
+	if(Math.random() > 0 && !mute){
 		ambience.play({ pitch : notes[index], panning: Math.random()-.5 })
 		var range = 3.5
 		index += Math.round(Math.random()*range-range/2)
@@ -42,7 +55,7 @@ setInterval(function(){
 }, 400)
 
 setInterval(function(){
-	if(Math.random() > 0.4){
+	if(Math.random() > 0.4 && !mute){
 		note.play({ pitch : notes2[index], panning: Math.random()-.5, volume:0.5 })
 		var range = 3.5
 		index += Math.round(Math.random()*range-range/2)

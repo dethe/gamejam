@@ -41,6 +41,7 @@ html, body{
 	border-radius:50%;
 	cursor:pointer;
 	background:none;
+	text-align:center;
 	top:20px;
 	transition:all .2s;
 }
