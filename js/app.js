@@ -246,7 +246,7 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
         }else{
             this.attr('flipH', true);
         }
-        return this.update();
+        return this.update(true);
     };
 
     Element.prototype.flipV = function(){
@@ -255,7 +255,7 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
         }else{
             this.attr('flipV', true);
         }
-        return this.update();
+        return this.update(true);
     };
 
     Element.prototype.snapToGrid = function(){
