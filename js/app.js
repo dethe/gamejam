@@ -4,6 +4,7 @@ var GRIDSIZE = 25;
 var PI=Math.PI, cos=Math.cos, sin=Math.sin, abs=Math.abs, rad=Snap.rad;
 
 var selected; //"selected"
+var running = false;
 
 // Utilities
 
@@ -57,26 +58,32 @@ function randomId() {
 Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
     var prevdx, prevdy;
     function onDrag(dx, dy, x, y, evt){
-        if(evt.shiftKey){
-            this.moveTo(Math.round((x-window.innerWidth/2)/25)*25, Math.round((y-window.innerHeight/2)/25)*25);
-        }else{
-            this.move(dx - prevdx, dy - prevdy);
+        if(!running){
+            if(evt.shiftKey){
+                this.moveTo(Math.round((x-window.innerWidth/2)/25)*25, Math.round((y-window.innerHeight/2)/25)*25);
+            }else{
+                this.move(dx - prevdx, dy - prevdy);
+            }
+            prevdx = dx;
+            prevdy = dy;
         }
-        prevdx = dx;
-        prevdy = dy;
     }
 
     function onDragStart(x, y, evt){
-        prevdx = prevdy = 0;
-        if (evt.metaKey){
-            this.insertBefore(this.clone().setup());
+        if(!running){
+            prevdx = prevdy = 0;
+            if (evt.metaKey){
+                this.insertBefore(this.clone().setup());
+            }
         }
     }
 
     function onDragEnd(evt){
-        this.snapToGrid();
-        this.joinGroup(randcolor());
-        selected = this;
+        if(!running){
+            this.snapToGrid();
+            this.joinGroup(randcolor());
+            selected = this;
+        }
     }
 
     var pathFns = {

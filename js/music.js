@@ -2,7 +2,7 @@ var mute = false;
 
 function toggleMute(el){
     mute = !mute;
-    if(el.classList.contains('fa-volume-up')){
+    if(mute){
         el.classList.remove('fa-volume-up')
         el.classList.add('fa-volume-off')
     }else{

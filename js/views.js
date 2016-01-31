@@ -66,8 +66,9 @@ views.game = {
 	init: function(){
 		this.s = Snap(0,0)
 		root_element.innerHTML = 	'<button class="btn back fa fa-angle-left" onclick="changeView(views.level_select)"></button>'+
-									'<button class="btn fa fa-rotate-left" style="right:100px;" onclick="if(selected!=undefined){selected.rotate(-90)}"></button>'+
-									'<button class="btn fa fa-rotate-right" style="right:20px;" onclick="if(selected!=undefined){selected.rotate(90)}"></button>'
+									'<button class="btn fa fa-rotate-left" style="right:100px;" onclick="if(selected!=undefined && !running){selected.rotate(-90)}"></button>'+
+									'<button class="btn fa fa-rotate-right" style="right:20px;" onclick="if(selected!=undefined && !running){selected.rotate(90)}"></button>'+
+									'<button class="btn fa fa-play" style="margin-left:auto; margin-right:auto; left:0; right:0" onclick="toggleRun(this)"></button>'
 		root_element.appendChild(this.s.node)
 
 		this.level = levels[current_level]
@@ -87,6 +88,17 @@ views.game = {
 	    this.s.node.setAttribute('width', w)
 	    this.s.node.setAttribute('height', h)
 	    this.s.node.setAttribute('viewBox', -w/2+','+(-h/2)+','+w+','+h )
+	}
+}
+
+function toggleRun(el){
+	running = !running;
+	if(running){
+		el.classList.remove('fa-play')
+		el.classList.add('fa-stop')
+	}else{
+		el.classList.add('fa-play')
+		el.classList.remove('fa-stop')
 	}
 }
 
