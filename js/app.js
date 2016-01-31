@@ -170,7 +170,7 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
             var p1 = rotatePoint(x1-cx, y1-cy, rot);
             var p2 = rotatePoint(x2-cx, y2-cy, rot);
             if (rot){
-                e.attr({cx: p1[0], cy: p1[1], x2: p2[0]-p1[0], y2: p2[1]-p1[1], rot: 0});
+                e.attr({cx: p1[0]+cx, cy: p1[1]+cy, x2: p2[0]-p1[0], y2: p2[1]-p1[1], rot: 0});
             }
             return ['M', p1[0] * flipH + cx, p1[1] * flipV + cy,
                          p2[0] * flipH + cx, p2[1] * flipV + cy].join(' ');
