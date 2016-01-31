@@ -209,6 +209,7 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
     };
 
     Element.prototype.num = function(name){
+        //console.log(name+': '+this.attr(name))
         return Number(this.attr(name));
     };
 
