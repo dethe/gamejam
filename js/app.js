@@ -84,8 +84,9 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
     var pathFns = {
 
         asterisk: function(e){
-            var cx=e.num('cx'), cy=e.num('cy'), r=e.num('r'), num=e.num('num'), rot=e.rad('rot');
+            var cx=e.num('cx'), cy=e.num('cy'), r=e.num('r'), num=e.num('num');
             var flipH = e.bool('flipH') ? -1 : +1, flipV = e.bool('flipV') ? -1 : +1;
+            var rot=e.rad('rot') * flipH * flipV;
             var path = [];
             var theta = PI * 2 / num;
             for (var i = 0; i < num; i++){
@@ -96,8 +97,9 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
             return path.join(' ');
         },
         polygon: function(e){
-            var cx=e.num('cx'), cy=e.num('cy'), r=e.num('r'), num=e.num('num'), rot=e.rad('rot');
+            var cx=e.num('cx'), cy=e.num('cy'), r=e.num('r'), num=e.num('num');
             var flipH = e.bool('flipH') ? -1 : +1, flipV = e.bool('flipV') ? -1 : +1;
+            var rot=e.rad('rot') * flipH * flipV;
             var path = ['M'];
             var theta = PI * 2 / num;
             for (var i = 0; i < num; i++){
@@ -108,8 +110,9 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
             return path.join(' ');
         },
         star: function(e){
-            var cx=e.num('cx'), cy=e.num('cy'), r=e.num('r'), num=e.num('num'), rot=e.rad('rot');
+            var cx=e.num('cx'), cy=e.num('cy'), r=e.num('r'), num=e.num('num');
             var flipH = e.bool('flipH') ? -1 : +1, flipV = e.bool('flipV') ? -1 : +1;
+            var rot=e.rad('rot') * flipH * flipV;
             // num should be odd and 5 or greater
             var skip = (num - 1) / 2;
             var theta = PI * 2 / num * skip;
@@ -122,9 +125,10 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
             return path.join(' ');
         },
         spiral: function(e){
-            var cx=e.num('cx'), cy=e.num('cy'), r=e.num('r'), num=e.num('num'), len=e.num('len'), rot=e.rad('rot');
+            var cx=e.num('cx'), cy=e.num('cy'), r=e.num('r'), num=e.num('num'), len=e.num('len');
             var theta = PI * 2 / num;
             var flipH = e.bool('flipH') ? -1 : +1, flipV = e.bool('flipV') ? -1 : +1;
+            var rot=e.rad('rot') * flipH * flipV;
             var dR = r / (num * len);
             var path = ['M'];
             for (var i = 0; i < (num * len); i++){
@@ -136,7 +140,8 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
         line: function(e){
             var x1=e.num('cx'), y1=e.num('cy'), x2=e.num('x2')+x1, y2=e.num('y2')+y1;
             var flipH = e.bool('flipH') ? -1 : +1, flipV = e.bool('flipV') ? -1 : +1;
-            var cx = (x1+x2)/2, cy=(y1+y2)/2, rot=e.rad('rot');
+            var rot=e.rad('rot') * flipH * flipV;
+            var cx = (x1+x2)/2, cy=(y1+y2)/2;
             var p1 = rotatePoint(x1-cx, y1-cy, rot);
             var p2 = rotatePoint(x2-cx, y2-cy, rot);
             return ['M', p1[0] * flipH + cx, p1[1] * flipV + cy,
