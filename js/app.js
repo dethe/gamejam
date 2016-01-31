@@ -29,6 +29,11 @@ function deleteItem(list, item) {
     return item;
 }
 
+function distance(x1, y1, x2, y2){
+    var val = Math.sqrt(Math.pow(x2-x1, 2) + Math.pow(y2-y1, 2));
+    return val;
+}
+
 function getGroup(id){
     return [].slice.call(Snap.selectAll('path')).filter(function(e){
         return e.attr('group') === id;
@@ -302,11 +307,6 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
 
     Element.prototype.endPulse = function(){
     };
-
-    function distance(x1, y1, x2, y2){
-        var val = Math.sqrt(Math.pow(x2-x1, 2) + Math.pow(y2-y1, 2));
-        return val;
-    }
 
     Element.prototype.intersects = function(e){
         var selfType = this.attr('type');
