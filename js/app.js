@@ -333,6 +333,7 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
             }
             return self.intersects(e);
         });
+        self.adjacent = connected;
         connected.forEach(function(e){
             if (!group){
                 if (e.attr('group')){
