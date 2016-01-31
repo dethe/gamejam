@@ -55,6 +55,9 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
 
     function onDragStart(x, y, evt){
         prevdx = prevdy = 0;
+        if (evt.metaKey){
+            this.insertBefore(this.clone().setup());
+        }
     }
 
     function onDragEnd(evt){
