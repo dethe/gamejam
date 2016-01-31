@@ -263,14 +263,12 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
         connected.forEach(function(e){
             if (!group){
                 if (e.attr('group')){
-                    console.log('joining group %s', e.attr('group'));
                     group = e.attr('group');
                     self.attr('group', group);
                     color = e.attr('stroke');
                     self.attr('stroke', color);
                 }else{
                     group = randomId();
-                    console.log('forming a new group %s', group);
                     self.attr('group', group);
                     e.attr('group', group);
                     e.attr('stroke', color);
@@ -281,15 +279,9 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
                 }else if (!e.attr('group')){
                     e.attr('group', group);
                     e.attr('stroke', color);
-                    console.log('adopting an orphan node');
                 }else{
                     // adopt group
-                    var searchGroup = e.attr('group');
-                    var adoptees = [].slice.call(Snap.selectAll('path')).filter(function(e){
-                        return e.attr('group') === searchGroup;
-                    });
-                    console.log('adopting %s nodes from group', adoptees.length, searchGroup);
-                    adoptees.forEach(function(e){
+                    group(e.attr('group')).forEach(function(e){
                         e.attr('group', group);
                         e.attr('stroke', color);
                     });
