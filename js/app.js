@@ -28,7 +28,7 @@ function deleteItem(list, item) {
     return item;
 }
 
-function group(id){
+function getGroup(id){
     return [].slice.call(Snap.selectAll('path')).filter(function(e){
         return e.attr('group') === id;
     });
@@ -218,7 +218,6 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
         var dur=this.num('dur') || 1000, color='#000';
         var easing=this.ease('ease');
         this.animate({stroke: color, strokeWidth: 5}, dur, easing, this.endPulse);
-        choice(Snap.selectAll('path')).pulse();
     };
 
     Element.prototype.endPulse = function(){
@@ -281,7 +280,7 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
                     e.attr('stroke', color);
                 }else{
                     // adopt group
-                    group(e.attr('group')).forEach(function(e){
+                    getGroup(e.attr('group')).forEach(function(e){
                         e.attr('group', group);
                         e.attr('stroke', color);
                     });
