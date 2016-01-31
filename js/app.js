@@ -62,12 +62,19 @@ function wireGroups(){
 }
 
 Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
-
+    var prevdx, prevdy;
     function onDrag(dx, dy, x, y, evt){
-        this.moveTo(x, y);
+        if(evt.shiftKey){
+            this.moveTo(Math.floor((x-window.innerWidth/2)/25)*25, Math.floor((y-window.innerHeight/2)/25)*25);
+        }else{
+            this.move(dx - prevdx, dy - prevdy);
+        }
+        prevdx = dx;
+        prevdy = dy;
     }
 
     function onDragStart(x, y, evt){
+        prevdx = prevdy = 0;
     }
 
     function onDragEnd(evt){
@@ -284,4 +291,16 @@ var line3 = s.line(275, 200, 25, -45).attr(ATTRS);
 var line4 = s.line(275, 275, 25, 90).attr(ATTRS);
 
 line1.node.classList.add('attachtome')*/
+
+
+function resize(){
+    w = window.innerWidth
+    h = window.innerHeight
+    s.node.setAttribute('width', w)
+    s.node.setAttribute('height', h)
+    s.node.setAttribute('viewBox', -w/2+','+(-h/2)+','+w+','+h )
+}
+
+window.addEventListener('resize', resize)
+resize()
 
