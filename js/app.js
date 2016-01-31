@@ -3,6 +3,8 @@ var HEIGHT = window.innerHeight;
 var GRIDSIZE = 25;
 var PI = Math.PI, cos = Math.cos, sin = Math.sin, rad=Snap.rad;
 
+var selected; //"selected"
+
 // Utilities
 
 function randint(max){
