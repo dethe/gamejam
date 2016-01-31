@@ -175,7 +175,18 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
             return ['M', p1[0] * flipH + cx, p1[1] * flipV + cy,
                          p2[0] * flipH + cx, p2[1] * flipV + cy].join(' ');
         },
-        coffin: function(cx, cy, r){
+        coffin: function(e){
+            var cx=e.num('cx'), cy=e.num('cy'), r=e.num('r');
+            var flipH = e.bool('flipH') ? -1 : +1, flipV = e.bool('flipV') ? -1 : +1;
+            var rot = e.rad('rot') * flipH * flipV;
+            var degs = [70, 110, 215, 250, 290, 325];
+            var path = ['M'];
+            degs.forEach(function(d){
+                path.push(cos(rad(d) + rot) * r * flipH + cx,
+                          sin(rad(d) + rot) * r * flipV + cy);
+            });
+            path.push('Z');
+            return path.join(' ');
         },
         crescent: function(cx, cy, r){
         },
@@ -216,6 +227,12 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
     Paper.prototype.line = function(cx, cy, x2, y2){
         return this.path()
             .attr('x2', x2).attr('y2', y2).attr('type', 'line')
+            .moveTo(cx, cy).setup();
+    };
+
+    Paper.prototype.coffin = function(cx, cy, r){
+        return this.path()
+            .attr('r', r).attr('type', 'coffin')
             .moveTo(cx, cy).setup();
     };
 
