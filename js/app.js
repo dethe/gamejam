@@ -49,6 +49,21 @@ function rotatePoint(px, py, angle){
     return [x, y];
 }
 
+function linePoints(e){
+    var x1=e.num('cx'), y1=e.num('cy'), x2=e.num('x2')+x1, y2=e.num('y2')+y1;
+    return [[x1, y1], [x2, y2]];
+}
+
+function pointsAdjacent(p1, p2){
+    return (abs(p1[0] - p2[0]) < 5) && (abs(p1[1] - p2[1]) < 5);
+}
+
+function endpointsMatch(line1, line2){
+    var l1 = linePoints(line1);
+    var l2 = linePoints(line2);
+    return pointsAdjacent(l1[0], l2[0]) || pointsAdjacent(l1[0], l2[1]) || pointsAdjacent(l1[1], l2[0]) || pointsAdjacent(l1[1], l2[0]);
+}
+
 function randomId() {
     // Based on Paul Irish's random hex color:http://www.paulirish.com/2009/random-hex-color-code-snippets/
     // Theoretically could return non-unique values, not going to let that keep me up at night
@@ -312,7 +327,7 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
         var selfType = this.attr('type');
         var otherType = e.attr('type');
         if (selfType === 'line' && otherType === 'line'){
-            return !! Snap.path.intersection(this, e).length;
+            return (!! Snap.path.intersection(this, e).length) || endpointsMatch(this, e);
         }else if (selfType === 'line'){
             var x1=this.num('cx'), x2=this.num('x2')+x1, y1=this.num('cy'), y2=this.num('y2')+y1;
             var ex=e.num('cx'), ey=e.num('cy');
