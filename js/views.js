@@ -107,25 +107,40 @@ function toggleRun(el){
 				asterisks.push(views.game.shapes[i])
 			}
 		}
+
+		var speed = 500;
 		function pulse(signal, adj){
 			//var adj = a.adjacent[i2]
-			console.log(adj)
 			var closex, closey;
 			if(adj.attr('type') == 'line'){
 				var g = distance(signal.num('cx'), signal.num('cy'), adj.num('cx') + adj.num('x2'), adj.num('cy') + adj.num('y2')) < distance(signal.num('cx'), signal.num('cy'), adj.num('cx'), adj.num('cy'))
-				console.log(g)
+
 				var points = [[adj.num('cx'), adj.num('cy')], [adj.num('cx') + adj.num('x2'), adj.num('cy') + adj.num('y2')]]
 				var closepoint = points[g+0]
 				var farpoint = points[!g+0]
-				closex = closepoint[0]
-				closey = closepoint[1]
+				//closex = closepoint[0]
+				//closey = closepoint[1]
+				signal.animate({cx:closepoint[0]+'px', cy:closepoint[1]+'px'}, speed, mina.linear, function(){
+					adj.pulse()
+					this.animate({cx:farpoint[0]+'px', cy:farpoint[1]+'px'}, speed)
+					if(adj.adjacent.length > 1){
+						pulse(this, adj.adjacent[1])
+					}
+				})
 			}else{
-				closex = adj.num('cx')
-				closey = adj.num('cy')
+				signal.animate({cx:adj.num('cx')+'px', cy:adj.num('cy')+'px'}, speed, mina.linear, function(){
+					adj.pulse()
+					if(adj.adjacent.length > 1){
+						pulse(signal, adj.adjacent[1])
+					}
+				})
+				
+				//closex = 
+				//closey = adj.num('cy')
 			}
-			console.log(closex, closey)
-			signal.animate({cx:closex+'px', cy:closey+'px'}, 1000)
-			adj.pulse()
+			//console.log(closex, closey)
+			//signal.animate({cx:closex+'px', cy:closey+'px'}, 200)
+			//adj.pulse()
 		}
 		for(var i = 0; i < asterisks.length; i++){
 			var a = asterisks[i]
