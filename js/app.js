@@ -194,6 +194,7 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
     // Element extensions
 
     Element.prototype.setup = function(){
+        this.adjacent = [];
         return this.drag(onDrag, onDragStart, onDragEnd);
     };
 
@@ -333,8 +334,9 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
             }
             return self.intersects(e);
         });
-        self.adjacent = connected;
+        this.adjacent = connected;
         connected.forEach(function(e){
+            e.adjacent.push(self);
             if (!group){
                 if (e.attr('group')){
                     group = e.attr('group');
