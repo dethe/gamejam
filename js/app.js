@@ -228,7 +228,7 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
     };
 
     Element.prototype.rotate = function(deg){
-        return this.attr('rot', this.num('rot') + deg).update();
+        return this.attr('rot', this.num('rot') + deg).update(true);
     };
 
     Element.prototype.flipH = function(){
