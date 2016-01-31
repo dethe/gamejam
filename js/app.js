@@ -45,7 +45,7 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
     var prevdx, prevdy;
     function onDrag(dx, dy, x, y, evt){
         if(evt.shiftKey){
-            this.moveTo(Math.floor((x-window.innerWidth/2)/25)*25, Math.floor((y-window.innerHeight/2)/25)*25);
+            this.moveTo(Math.round((x-window.innerWidth/2)/25)*25, Math.round((y-window.innerHeight/2)/25)*25);
         }else{
             this.move(dx - prevdx, dy - prevdy);
         }
@@ -229,7 +229,9 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
 
     Element.prototype.snapToGrid = function(){
         var x = this.num('cx'), y = this.num('cy');
-        var dX = x % GRIDSIZE;
+        x = Math.round(x/GRIDSIZE)*GRIDSIZE
+        y = Math.round(y/GRIDSIZE)*GRIDSIZE
+        /*var dX = x % GRIDSIZE;
         if (dX < GRIDSIZE / 2){
             x -= dX;
         }else{
@@ -240,7 +242,7 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
             y -= dY;
         }else{
             y += GRIDSIZE - dY;
-        }
+        }*/
         this.moveTo(x,y);
     };
 
@@ -335,41 +337,3 @@ var ATTRS = {
     strokeWidth: 5,
     color: '#00F', // for animation
 }
-
-var s = Snap(WIDTH, HEIGHT);
-
-var circle = s.rpolygon(-150,-150,25, 20).attr(ATTRS);
-var star7 = s.star(-150, -75, 25, 7).attr(ATTRS);
-var asterisk1 = s.asterisk(-150, 0, 25, 5).attr(ATTRS);
-var asterisk2 = s.asterisk(-150, 75, 25, 6).attr(ATTRS);
-var asterisk3 = s.asterisk(-150, 150, 25, 8).attr(ATTRS);
-
-var poly3 = s.rpolygon(-75, -150, 25, 3).attr(ATTRS);
-var poly4 = s.rpolygon(-75, -75, 25, 4).attr(ATTRS);
-var poly5 = s.rpolygon(-75, 0, 25, 5).attr(ATTRS);
-var poly6 = s.rpolygon(-75, 75, 25, 6).attr(ATTRS);
-var star5 = s.star(-75, 150, 25, 5).attr(ATTRS);
-
-var spiral1 = s.spiral(0, -150, 25, 500, 3).attr(ATTRS);
-var spiral2 = s.spiral(0, -75, 25, 20, .75).attr(ATTRS);
-var spiral3 = s.spiral(0, 0, 25, 20, .75).flipH().attr(ATTRS);
-var spiral4 = s.spiral(0, 75, 25, 20, .75).flipV().attr(ATTRS);
-var spiral5 = s.spiral(0, 150, 25, 20, .75).flipH().flipV().attr(ATTRS);
-
-var line1 = s.line(75, -150, 25, 25).attr(ATTRS);
-var line2 = s.line(75, -75, 25, 0).attr(ATTRS);
-var line3 = s.line(75, 0, 25, -25).attr(ATTRS);
-var line4 = s.line(75, 75, 0, 25).attr(ATTRS);
-
-
-function resize(){
-    w = window.innerWidth
-    h = window.innerHeight
-    s.node.setAttribute('width', w)
-    s.node.setAttribute('height', h)
-    s.node.setAttribute('viewBox', -w/2+','+(-h/2)+','+w+','+h )
-}
-
-window.addEventListener('resize', resize)
-resize()
-
