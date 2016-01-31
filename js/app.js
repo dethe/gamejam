@@ -86,7 +86,9 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
             var path = [];
             var theta = PI * 2 / num;
             for (var i = 0; i < num; i++){
-                path.push('M', cx, cy, cos(theta * i + rot) * r + cx, sin(theta * i + rot) * r + cy);
+                path.push('M', cx, cy,
+                          cos(theta * i + rot) * r + cx,
+                          sin(theta * i + rot) * r + cy);
             }
             return path.join(' ');
         },
@@ -206,7 +208,10 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
         return mina[this.attr(name)] || mina.easeinout; // get easing
     };
 
-    Element.prototype.update = function(){
+    Element.prototype.update = function(b){
+        if(b){
+            return this.animate({d: pathFns[this.attr('type')](this)}, 100, this.ease(), this.update)
+        }
         return this.attr('d', pathFns[this.attr('type')](this));
     }
 
