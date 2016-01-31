@@ -28,7 +28,7 @@ function deleteItem(list, item) {
     return item;
 }
 
-function group(id){
+function getGroup(id){
     return [].slice.call(Snap.selectAll('path')).filter(function(e){
         return e.attr('group') === id;
     });
@@ -55,6 +55,9 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
 
     function onDragStart(x, y, evt){
         prevdx = prevdy = 0;
+        if (evt.metaKey){
+            this.insertBefore(this.clone().setup());
+        }
     }
 
     function onDragEnd(evt){
@@ -99,10 +102,12 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
         spiral: function(e){
             var cx=e.num('cx'), cy=e.num('cy'), r=e.num('r'), num=e.num('num'), len=e.num('len'), rot=e.rad('rot');
             var theta = PI * 2 / num;
+            var flipH = e.bool('flipH') ? -1 : +1, flipV = e.bool('flipV') ? -1 : +1;
             var dR = r / (num * len);
             var path = ['M'];
             for (var i = 0; i < (num * len); i++){
-                path.push(cos(theta * i + rot) * (dR * i) + cx, sin(theta * i + rot) * (dR * i) + cy);
+                path.push(cos(theta * i + rot) * (dR * i) * flipH + cx,
+                          sin(theta * i + rot) * (dR * i) * flipV + cy);
             }
             return path.join(' ');
         },
@@ -168,6 +173,19 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
         return rad(this.num(name));
     };
 
+    Element.prototype.bool = function(name, val){
+        if (typeof(val) === 'undefined'){
+            return this.attr(name) === 'true';
+        }else{
+            if (val){
+                this.attr(name, 'true');
+            }else{
+                this.node.removeAttribute(name);
+            }
+        }
+        return this;
+    };
+
     Element.prototype.ease = function(name){
         return mina[this.attr(name)] || mina.easeinout; // get easing
     };
@@ -193,6 +211,24 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
 
     Element.prototype.rotate = function(deg){
         return this.attr('rot', this.num('rot') + deg).update(true);
+    };
+
+    Element.prototype.flipH = function(){
+        if (this.node.hasAttribute('flipH')){
+            this.node.removeAttribute('flipH');
+        }else{
+            this.attr('flipH', true);
+        }
+        return this.update();
+    };
+
+    Element.prototype.flipV = function(){
+        if (this.node.hasAttribute('flipV')){
+            this.node.removeAttribute('flipV');
+        }else{
+            this.attr('flipV', true);
+        }
+        return this.update();
     };
 
     Element.prototype.snapToGrid = function(){
@@ -224,7 +260,6 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
         var dur=this.num('dur') || 1000, color='#000';
         var easing=this.ease('ease');
         this.animate({stroke: color, strokeWidth: 5}, dur, easing, this.endPulse);
-        choice(Snap.selectAll('path')).pulse();
     };
 
     Element.prototype.endPulse = function(){
@@ -287,7 +322,7 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
                     e.attr('stroke', color);
                 }else{
                     // adopt group
-                    group(e.attr('group')).forEach(function(e){
+                    getGroup(e.attr('group')).forEach(function(e){
                         e.attr('group', group);
                         e.attr('stroke', color);
                     });
