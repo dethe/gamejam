@@ -35,6 +35,19 @@ function getGroup(id){
 
 }
 
+function rotatePoint(ox, oy, px, py, angle){
+    // translate to be around origin
+    var x = px - ox;
+    var y = py - oy;
+    // rotate
+    var s = sin(angle);
+    var c = cos(angle);
+    var px = x * c - y * s;
+    var py = x * x + y * c;
+    // translate back
+    return [px + ox, py + oy];
+}
+
 function randomId() {
     // Based on Paul Irish's random hex color:http://www.paulirish.com/2009/random-hex-color-code-snippets/
     // Theoretically could return non-unique values, not going to let that keep me up at night
@@ -111,8 +124,11 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
             return path.join(' ');
         },
         line: function(e){
-            var cx=e.num('cx'), cy=e.num('cy'), x2=e.num('x2'), y2=e.num('y2');
-            return ['M', cx, cy, cx+x2, cy+y2].join(' ');
+            var x1=e.num('cx'), y1=e.num('cy'), x2=e.num('x2')+x1, y2=e.num('y2')+y1;
+            var cx = (x1+x2)/2, cy=(y1+y2)/2, rot=e.rad('rot');
+            var p1 = rotatePoint(cx, cy, x1, y1, rot);
+            var p2 = rotatePoint(cx, cy, x2, y2, rot);
+            return ['M', p1[0], p1[1], p2[0], p2[1]].join(' ');
         },
         coffin: function(cx, cy, r){
         },
