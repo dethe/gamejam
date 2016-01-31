@@ -65,6 +65,11 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
     }
 
     function onDragStart(x, y, evt){
+        var self = this;
+        this.adjacent.forEach(function(e){
+            deleteItem(e.adjacent, self);
+        });
+        this.adjacent = [];
         if(!running){
             prevdx = prevdy = 0;
             if (evt.metaKey){
@@ -194,6 +199,7 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
     // Element extensions
 
     Element.prototype.setup = function(){
+        this.adjacent = [];
         return this.drag(onDrag, onDragStart, onDragEnd);
     };
 
@@ -333,7 +339,9 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
             }
             return self.intersects(e);
         });
+        this.adjacent = connected;
         connected.forEach(function(e){
+            e.adjacent.push(self);
             if (!group){
                 if (e.attr('group')){
                     group = e.attr('group');
