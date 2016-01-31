@@ -66,8 +66,10 @@ views.game = {
 	init: function(){
 		this.s = Snap(0,0)
 		root_element.innerHTML = 	'<button class="btn back fa fa-angle-left" onclick="changeView(views.level_select)"></button>'+
-									'<button class="btn fa fa-rotate-left" style="right:100px;" onclick="if(selected!=undefined && !running){selected.rotate(-90)}"></button>'+
-									'<button class="btn fa fa-rotate-right" style="right:20px;" onclick="if(selected!=undefined && !running){selected.rotate(90)}"></button>'+
+									'<button class="btn fa fa-rotate-left" style="right:260px;" onclick="if(selected!=undefined && !running){selected.rotate(-90)}"></button>'+
+									'<button class="btn fa fa-rotate-right" style="right:180px;" onclick="if(selected!=undefined && !running){selected.rotate(90)}"></button>'+
+									'<button class="btn fa fa-arrows-h" style="right:100px;" onclick="if(selected!=undefined && !running){selected.flipH()}"></button>'+
+									'<button class="btn fa fa-arrows-v" style="right:20px;" onclick="if(selected!=undefined && !running){selected.flipV()}"></button>'+
 									'<button class="btn fa fa-play" style="margin-left:auto; margin-right:auto; left:0; right:0" onclick="toggleRun(this)"></button>'
 		root_element.appendChild(this.s.node)
 
@@ -99,6 +101,14 @@ function toggleRun(el){
 	}else{
 		el.classList.add('fa-play')
 		el.classList.remove('fa-stop')
+	}
+	gameloop()
+}
+
+function gameloop(){
+	if(running){
+		requestAnimationFrame(gameloop)
+
 	}
 }
 

@@ -28,7 +28,8 @@ var levels = [
 	},
 	{
 		shapes: [
-			['asterisk', 0, 0, 25, 8]
+			['asterisk', -75, 0, 25, 8],
+			['line', -25, 0, 100, 0]
 		]
 	},
 ]
