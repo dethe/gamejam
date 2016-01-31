@@ -36,17 +36,12 @@ function getGroup(id){
 
 }
 
-function rotatePoint(ox, oy, px, py, angle){
-    // translate to be around origin
-    var x = px - ox;
-    var y = py - oy;
-    // rotate
+function rotatePoint(px, py, angle){
     var s = sin(angle);
     var c = cos(angle);
-    var px = x * c - y * s;
-    var py = x * s + y * c;
-    // translate back
-    return [px + ox, py + oy];
+    var x = px * c - py * s;
+    var y = px * s + py * c;
+    return [x, y];
 }
 
 function randomId() {
@@ -90,33 +85,38 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
 
         asterisk: function(e){
             var cx=e.num('cx'), cy=e.num('cy'), r=e.num('r'), num=e.num('num'), rot=e.rad('rot');
+            var flipH = e.bool('flipH') ? -1 : +1, flipV = e.bool('flipV') ? -1 : +1;
             var path = [];
             var theta = PI * 2 / num;
             for (var i = 0; i < num; i++){
                 path.push('M', cx, cy,
-                          cos(theta * i + rot) * r + cx,
-                          sin(theta * i + rot) * r + cy);
+                          cos(theta * i + rot) * r * flipH + cx,
+                          sin(theta * i + rot) * r  * flipV + cy);
             }
             return path.join(' ');
         },
         polygon: function(e){
             var cx=e.num('cx'), cy=e.num('cy'), r=e.num('r'), num=e.num('num'), rot=e.rad('rot');
+            var flipH = e.bool('flipH') ? -1 : +1, flipV = e.bool('flipV') ? -1 : +1;
             var path = ['M'];
             var theta = PI * 2 / num;
             for (var i = 0; i < num; i++){
-                path.push(cos(theta * i + rot) * r + cx, sin(theta * i + rot) * r + cy);
+                path.push(cos(theta * i + rot) * r * flipH + cx,
+                          sin(theta * i + rot) * r * flipV + cy);
             }
             path.push('Z');
             return path.join(' ');
         },
         star: function(e){
             var cx=e.num('cx'), cy=e.num('cy'), r=e.num('r'), num=e.num('num'), rot=e.rad('rot');
+            var flipH = e.bool('flipH') ? -1 : +1, flipV = e.bool('flipV') ? -1 : +1;
             // num should be odd and 5 or greater
             var skip = (num - 1) / 2;
             var theta = PI * 2 / num * skip;
             var path = ['M'];
             for (var i = 0; i < num; i++){
-                path.push(cos(theta * i + rot) * r + cx, sin(theta * i + rot) * r + cy);
+                path.push(cos(theta * i + rot) * r * flipH + cx,
+                          sin(theta * i + rot) * r * flipV + cy);
             }
             path.push('Z');
             return path.join(' ');
@@ -135,10 +135,12 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
         },
         line: function(e){
             var x1=e.num('cx'), y1=e.num('cy'), x2=e.num('x2')+x1, y2=e.num('y2')+y1;
+            var flipH = e.bool('flipH') ? -1 : +1, flipV = e.bool('flipV') ? -1 : +1;
             var cx = (x1+x2)/2, cy=(y1+y2)/2, rot=e.rad('rot');
-            var p1 = rotatePoint(cx, cy, x1, y1, rot);
-            var p2 = rotatePoint(cx, cy, x2, y2, rot);
-            return ['M', p1[0], p1[1], p2[0], p2[1]].join(' ');
+            var p1 = rotatePoint(x1-cx, y1-cy, rot);
+            var p2 = rotatePoint(x2-cx, y2-cy, rot);
+            return ['M', p1[0] * flipH + cx, p1[1] * flipV + cy,
+                         p2[0] * flipH + cx, p2[1] * flipV + cy].join(' ');
         },
         coffin: function(cx, cy, r){
         },
