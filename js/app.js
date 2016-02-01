@@ -41,12 +41,12 @@ function getGroup(id){
 
 }
 
-function rotatePoint(px, py, angle){
+function rotatePoint(x, y, angle){
     var s = sin(angle);
     var c = cos(angle);
-    var x = px * c - py * s;
-    var y = px * s + py * c;
-    return [x, y];
+    var nx = x * c - y * s;
+    var ny = x * s + y * c;
+    return [nx, ny];
 }
 
 function linePoints(e){
@@ -108,87 +108,83 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
 
     var pathFns = {
 
-        asterisk: function(e){
-            var cx=e.num('cx'), cy=e.num('cy'), r=e.num('r'), num=e.num('num');
-            var flipH = e.bool('flipH') ? -1 : +1, flipV = e.bool('flipV') ? -1 : +1;
-            var rot=e.rad('rot') * flipH * flipV;
+        asterisk: function(cx, cy, r, num){
             var path = [];
             var theta = PI * 2 / num;
             for (var i = 0; i < num; i++){
                 path.push('M', cx, cy,
-                          cos(theta * i + rot) * r * flipH + cx,
-                          sin(theta * i + rot) * r  * flipV + cy);
+                          cos(theta * i) * r + cx,
+                          sin(theta * i) * r + cy);
             }
             return path.join(' ');
         },
-        polygon: function(e){
-            var cx=e.num('cx'), cy=e.num('cy'), r=e.num('r'), num=e.num('num');
-            var flipH = e.bool('flipH') ? -1 : +1, flipV = e.bool('flipV') ? -1 : +1;
-            var rot=e.rad('rot') * flipH * flipV;
+        polygon: function(cx, cy, r, num){
             var path = ['M'];
             var theta = PI * 2 / num;
             for (var i = 0; i < num; i++){
-                path.push(cos(theta * i + rot) * r * flipH + cx,
-                          sin(theta * i + rot) * r * flipV + cy);
+                path.push(cos(theta * i) * r + cx,
+                          sin(theta * i) * r + cy);
             }
             path.push('Z');
             return path.join(' ');
         },
-        star: function(e){
-            var cx=e.num('cx'), cy=e.num('cy'), r=e.num('r'), num=e.num('num');
-            var flipH = e.bool('flipH') ? -1 : +1, flipV = e.bool('flipV') ? -1 : +1;
-            var rot=e.rad('rot') * flipH * flipV;
+        polygonPlus: function(cx, cy, r, num){
+            var plus = pathFns.asterisk(cx, cy, r/2, 4);
+            return pathFns.polygon(cx,cy,r,num).concat(plus);
+        },
+        polygonMinus: function(cx, cy, r, num){
+            var plus = pathFns.asterisk(cx, cy, r/2, 2);
+            return pathFns.polygon(cx, cy, r, num).concat(plus);
+        },
+        crescent: function(cx, cy, r, num){
+            var path = ['M'];
+            var theta = PI * 2 / num;
+            for (var i = 0; i < num; i++){
+                if (i < num/2){
+                    path.push(cos(theta * i) *  r + cx,
+                              sin(theta * i) * r + cy);
+                }else{
+                    path.push(cos(theta * i) * r + cx,
+                              sin(theta * i)/2 * -r + cy);
+                }
+            }
+            path.push('Z');
+            return path.join(' ');
+        },
+        star: function(cx, cy, r, num){
             // num should be odd and 5 or greater
             var skip = (num - 1) / 2;
             var theta = PI * 2 / num * skip;
             var path = ['M'];
             for (var i = 0; i < num; i++){
-                path.push(cos(theta * i + rot) * r * flipH + cx,
-                          sin(theta * i + rot) * r * flipV + cy);
+                path.push(cos(theta * i) * r + cx,
+                          sin(theta * i) * r + cy);
             }
             path.push('Z');
             return path.join(' ');
         },
-        spiral: function(e){
-            var cx=e.num('cx'), cy=e.num('cy'), r=e.num('r'), num=e.num('num'), len=e.num('len');
+        spiral: function(cx, cy, r, num, len){
             var theta = PI * 2 / num;
-            var flipH = e.bool('flipH') ? -1 : +1, flipV = e.bool('flipV') ? -1 : +1;
-            var rot=e.rad('rot') * flipH * flipV;
             var dR = r / (num * len);
             var path = ['M'];
             for (var i = 0; i < (num * len); i++){
-                path.push(cos(theta * i + rot) * (dR * i) * flipH + cx,
-                          sin(theta * i + rot) * (dR * i) * flipV + cy);
+                path.push(cos(theta * i) * (dR * i) + cx,
+                          sin(theta * i) * (dR * i) + cy);
             }
             return path.join(' ');
         },
-        line: function(e){
-            var x1=e.num('cx'), y1=e.num('cy'), x2=e.num('x2')+x1, y2=e.num('y2')+y1;
-            var flipH = e.bool('flipH') ? -1 : +1, flipV = e.bool('flipV') ? -1 : +1;
-            var rot=e.rad('rot') * flipH * flipV;
-            var cx = (x1+x2)/2, cy=(y1+y2)/2;
-            var p1 = rotatePoint(x1-cx, y1-cy, rot);
-            var p2 = rotatePoint(x2-cx, y2-cy, rot);
-            if (rot){
-                e.attr({cx: p1[0]+cx, cy: p1[1]+cy, x2: p2[0]-p1[0], y2: p2[1]-p1[1], rot: 0});
-            }
-            return ['M', p1[0] * flipH + cx, p1[1] * flipV + cy,
-                         p2[0] * flipH + cx, p2[1] * flipV + cy].join(' ');
+        line: function(x1, y1, x2, y2){
+            return ['M', x1, y1, x2, y2].join(' ');
         },
-        coffin: function(e){
-            var cx=e.num('cx'), cy=e.num('cy'), r=e.num('r');
-            var flipH = e.bool('flipH') ? -1 : +1, flipV = e.bool('flipV') ? -1 : +1;
-            var rot = e.rad('rot') * flipH * flipV;
+        coffin: function(cx, cy, r){
             var degs = [70, 110, 215, 250, 290, 325];
             var path = ['M'];
             degs.forEach(function(d){
-                path.push(cos(rad(d) + rot) * r * flipH + cx,
-                          sin(rad(d) + rot) * r * flipV + cy);
+                path.push(cos(rad(d)) * r + cx,
+                          sin(rad(d)) * r + cy);
             });
             path.push('Z');
             return path.join(' ');
-        },
-        crescent: function(cx, cy, r){
         },
         trigram: function(cx, cy, r, h){
         },
@@ -201,39 +197,50 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
     // New path handlers
 
     Paper.prototype.asterisk = function(cx, cy, r, num){
-        return this.path()
-            .attr('r', r).attr('num', num).attr('type', 'asterisk')
-            .moveTo(cx, cy).setup();
+        return this.path(pathFns.asterisk(cx, cy, r, num))
+            .attr({cx: cx, cy: cy, type: 'asterisk'}).setup();
     };
 
     Paper.prototype.rpolygon = function(cx, cy, r, num){
-        return this.path()
-            .attr('r', r).attr('num', num).attr('type', 'polygon')
-            .moveTo(cx, cy).setup();
+        return this.path(pathFns.polygon(cx, cy, r, num))
+            .attr({cx: cx, cy: cy, type: 'polygon'}).setup();
+    };
+
+    Paper.prototype.polyplus = function(cx, cy, r, num){
+        return this.path(pathFns.polygonPlus(cx, cy, r, num))
+            .attr({cx: cx, cy: cy, type: 'polygonPlus'}).setup();
+    };
+
+    Paper.prototype.polyminus = function(cx, cy, r, num){
+        return this.path(pathFns.polygonMinus(cx, cy, r, num))
+            .attr({cx: cx, cy: cy, type: 'polygonMinus'}).setup();
+    };
+
+    Paper.prototype.crescent = function(cx, cy, r, num){
+        return this.path(pathFns.crescent(cx, cy, r, num))
+            .attr({cx: cx, cy: cy, type: 'crescent'}).setup();
     };
 
     Paper.prototype.star = function(cx, cy, r, num){
-        return this.path()
-            .attr('r', r).attr('num', num).attr('type', 'star')
-            .moveTo(cx, cy).setup();
+        return this.path(pathFns.star(cx, cy, r, num))
+            .attr({cx: cx, cy: cy, type: 'star'}).setup();
     };
 
     Paper.prototype.spiral = function(cx, cy, r, num, len){
-        return this.path()
-            .attr('r', r).attr('num', num).attr('len', len).attr('type', 'spiral')
-            .moveTo(cx, cy).setup();
+        return this.path(pathFns.spiral(cx, cy, r, num, len))
+            .attr({cx: cx, cy: cy, type: 'spiral'}).setup();
     };
 
-    Paper.prototype.line = function(cx, cy, x2, y2){
-        return this.path()
-            .attr('x2', x2).attr('y2', y2).attr('type', 'line')
-            .moveTo(cx, cy).setup();
+    Paper.prototype.line = function(x1, y1, dx, dy){
+        var x2 = x1+dx, y2 = y1+dy;
+        var cx = (x1 + x2)/2, cy = (y1 + y2)/2;
+        return this.path(pathFns.line(x1, y1, x2, y2))
+            .attr({cx: cx, cy: cy, type: 'line'}).setup();
     };
 
     Paper.prototype.coffin = function(cx, cy, r){
-        return this.path()
-            .attr('r', r).attr('type', 'coffin')
-            .moveTo(cx, cy).setup();
+        return this.path(pathFns.spiral(cx, cy, r))
+            .attr({cx: cx, cy: cy, type: 'coffin'}).setup();
     };
 
     // Element extensions
@@ -269,63 +276,61 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
         return mina[this.attr(name)] || mina.easeinout; // get easing
     };
 
-    Element.prototype.update = function(b){
-        if(b){
-            return this.animate({d: pathFns[this.attr('type')](this)}, 100, this.ease(), this.update)
-        }
-        return this.attr('d', pathFns[this.attr('type')](this));
+    Element.prototype.updatePath(fn){
+        return this.attr('d', Snap.parsePathString(this.attr('d')).map(function(seg){
+            if (seg[0] === 'Z'){
+                return seg[0];
+            }
+            var p = fn(seg[1], seg[2]);
+            if (seg[0] === 'M'){
+                return [seg[0], p[0], p[1]].join(' ');
+            }
+            return p.join(' ');
+        }).join(' '));
     }
 
     Element.prototype.moveTo = function(cx, cy){
-        return this.attr('cx', cx).attr('cy', cy).update();
+        var dx = this.num('cx') - cx, dy = this.num('cy') - cy;
+        this.attr({cx: cx, cy: cy});
+        this.updatePath(function(x,y){
+            return [x+dx, y+dy];
+        });
     };
 
     Element.prototype.move = function(dx, dy){
-        return this.attr('cx', this.num('cx') + dx).attr('cy', this.num('cy') + dy).update();
-    };
-
-    Element.prototype.rotateTo = function(deg){
-        return this.attr('rot', deg).update();
+        this.attr({cx: '+=' + dx, cy: '+=' + dy});
+        this.updatePath(function(x,y){
+            return [x+dx, y+dy];
+        });
     };
 
     Element.prototype.rotate = function(deg){
-        return this.attr('rot', this.num('rot') + deg).update(true);
+        var cx = this.num('cx'), cy = this.num('cy');
+        var angle = rad(deg);
+        this.updatePath(function(x,y){
+            var pt = rotatePoint(x-cx, y-cy, angle);
+            return [pt[0]+cx, pt[1]+cy];
+        });
     };
 
     Element.prototype.flipH = function(){
-        if (this.node.hasAttribute('flipH')){
-            this.node.removeAttribute('flipH');
-        }else{
-            this.attr('flipH', true);
-        }
-        return this.update(true);
+        var cx = this.num('cx');
+        this.updatePath(function(x,y){
+            return [(x - cx) * -1 + cx, y];
+        });
     };
 
     Element.prototype.flipV = function(){
-        if (this.node.hasAttribute('flipV')){
-            this.node.removeAttribute('flipV');
-        }else{
-            this.attr('flipV', true);
-        }
-        return this.update(true);
+        var cy = this.num('cy');
+        this.updatePath(function(x,y){
+            return [x, (y - cy) * -1 + cy];
+        });
     };
 
     Element.prototype.snapToGrid = function(){
         var x = this.num('cx'), y = this.num('cy');
         x = Math.round(x/GRIDSIZE)*GRIDSIZE
         y = Math.round(y/GRIDSIZE)*GRIDSIZE
-        /*var dX = x % GRIDSIZE;
-        if (dX < GRIDSIZE / 2){
-            x -= dX;
-        }else{
-            x += GRIDSIZE - dX;
-        }
-        var dY = y % GRIDSIZE;
-        if (dY < GRIDSIZE / 2){
-            y -= dY;
-        }else{
-            y += GRIDSIZE - dY;
-        }*/
         this.moveTo(x,y);
     };
 
