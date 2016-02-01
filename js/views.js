@@ -38,7 +38,7 @@ views.title_screen = {
 	init: function(){
 		root_element.innerHTML = 	'<div class="titlemenu">'+
 										'<h1>Verve</h1>'+
-										'<button onclick="changeView(views.level_select)">levels</button>'+
+										'<button onclick="changeView(views.level_select); levelstart.play()">levels</button>'+
 									'</div>'
 	},
 	tini: function(){
@@ -48,11 +48,11 @@ views.title_screen = {
 
 views.level_select = {
 	init: function(){
-		var html = 	'<button class="btn back fa fa-angle-left" onclick="changeView(views.title_screen)"></button><br/>'+
+		var html = 	'<button class="btn back fa fa-chevron-left" onclick="changeView(views.title_screen); levelstart.play()"></button><br/>'+
 					'<div class="levelselect">'+
 						'<h1>Levels</h1>'
 		for(var i = 0; i < levels.length; i++){
-			html += 	'<button onclick="current_level = '+i+'; changeView(views.game)">'+i+'</button>'
+			html += 	'<button onclick="current_level = '+i+'; changeView(views.game); levelstart.play()">'+i+'</button>'
 		}
 		html += 	'</div>'
 		root_element.innerHTML = html
@@ -66,18 +66,25 @@ views.game = {
 	init: function(){
 		this.s = Snap(0,0)
 		running = false;
-		root_element.innerHTML = 	'<button class="btn back fa fa-angle-left" onclick="changeView(views.level_select)"></button>'+
-									'<button class="btn fa fa-rotate-left" style="right:260px;" onclick="if(selected!=undefined && !running){selected.rotate(-90)}"></button>'+
-									'<button class="btn fa fa-rotate-right" style="right:180px;" onclick="if(selected!=undefined && !running){selected.rotate(90)}"></button>'+
-									'<button class="btn fa fa-arrows-h" style="right:100px;" onclick="if(selected!=undefined && !running){selected.flipH()}"></button>'+
-									'<button class="btn fa fa-arrows-v" style="right:20px;" onclick="if(selected!=undefined && !running){selected.flipV()}"></button>'+
-									'<button class="btn fa fa-play" style="margin-left:auto; margin-right:auto; left:0; right:0" onclick="toggleRun(this)"></button>'
+		root_element.innerHTML = 	'<button class="btn back fa fa-chevron-left" onclick="changeView(views.level_select); levelstart.play()"></button>'+
+									'<button class="btn fa fa-rotate-left" style="right:260px;" onclick="if(selected!=undefined && !running){selected.rotate(-90)}; levelstart.play()"></button>'+
+									'<button class="btn fa fa-rotate-right" style="right:180px;" onclick="if(selected!=undefined && !running){selected.rotate(90)}; levelstart.play()"></button>'+
+									'<button class="btn fa fa-arrows-h" style="right:100px;" onclick="if(selected!=undefined && !running){selected.flipH()}; levelstart.play()"></button>'+
+									'<button class="btn fa fa-arrows-v" style="right:20px;" onclick="if(selected!=undefined && !running){selected.flipV()}; levelstart.play()"></button>'+
+									'<button class="btn fa fa-play" style="margin-left:auto; margin-right:auto; left:0; right:0" onclick="toggleRun(this); levelstart.play()"></button>'
 		root_element.appendChild(this.s.node)
 
 		this.level = levels[current_level]
 		this.shapes = []
+		var aa = 0
 		for(var i = 0; i < this.level.shapes.length; i++){
-			this.shapes.push( this.s[this.level.shapes[i][0]].apply(this.s, this.level.shapes[i].slice(1)).attr(ATTRS) )
+			shape = this.s[this.level.shapes[i][0]].apply(this.s, this.level.shapes[i].slice(1)).attr(ATTRS)
+			if(this.level.shapes[i][0] == 'asterisk'){
+				shape.pitch = this.level.pitches[aa]
+				shape.attr({ stroke: '#'+getColor('FF0000', '00FF00', shape.pitch / notes3.length) })
+				aa+=1
+			}
+			this.shapes.push( shape )
 		}
 		this.resize();
 		window.addEventListener('resize', this.resize.bind(this))
@@ -111,7 +118,6 @@ function toggleRun(el){
 		var speed = 500;
 		function pulse(signal, adj){
 			//var adj = a.adjacent[i2]
-			var closex, closey;
 			if(adj.attr('type') == 'line'){
 				var g = distance(signal.num('cx'), signal.num('cy'), adj.num('cx') + adj.num('x2'), adj.num('cy') + adj.num('y2')) < distance(signal.num('cx'), signal.num('cy'), adj.num('cx'), adj.num('cy'))
 
@@ -129,7 +135,15 @@ function toggleRun(el){
 				})
 			}else{
 				signal.animate({cx:adj.num('cx')+'px', cy:adj.num('cy')+'px'}, speed, mina.linear, function(){
+					var type = adj.attr('type')
 					adj.pulse()
+					if(type == 'spiral'){
+						note.play({pitch:notes3[signal.pitch]})
+						signal.animate({r:100, opacity:0}, 300, mina.easeinout, function(){
+							signal.remove()
+						})
+						return
+					}
 					if(adj.adjacent.length > 1){
 						pulse(signal, adj.adjacent[1])
 					}
@@ -145,9 +159,12 @@ function toggleRun(el){
 		for(var i = 0; i < asterisks.length; i++){
 			var a = asterisks[i]
 			asterisks[i].pulse()
+			console.log(a.adjacent)
 			for(var i2 = 0; i2 < a.adjacent.length; i2++){
 				var signal = views.game.s.circle(a.num('cx'), a.num('cy'), 7)
-				pulse(signal, a.adjacent[i])
+				signal.pitch = a.pitch
+				signal.attr({ fill: '#'+getColor('FF0000','00FF00', signal.pitch / notes3.length) })
+				pulse(signal, a.adjacent[i2])
 			}
 		}
 		console.log(asterisks)

@@ -1,5 +1,7 @@
 var current_level;
 
+
+
 var levels = [
 	{
 		shapes: [
@@ -25,16 +27,21 @@ var levels = [
 			['line', 75, 0, 27, -27],
 			['line', 75, 75, 0, 27],
 
-		]
+		],
+		
+		pitches: [7, 1, 3]
 	},
 	{
 		shapes: [
+			['asterisk', -75, 0, 25, 8],
 			['asterisk', -75, 0, 25, 8],
 			['line', -25, 0, 100, 0],
 			['line', -25, 0, 100, 0],
 			['line', -25, 0, 100, 50],
 			['spiral', 0, -75, 25, 500, 3],
+			['spiral', 0, -75, 25, 500, 3],
 			['line', -25, 0, 100, 50],
-		]
+		],
+		pitches: [7, 1]
 	},
 ]
