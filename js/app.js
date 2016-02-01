@@ -6,6 +6,26 @@ var PI=Math.PI, cos=Math.cos, sin=Math.sin, abs=Math.abs, rad=Snap.rad;
 var selected; //"selected"
 var running = false;
 
+var shake = new Howl({
+  urls: ['audio/piece_move_01.mp3', 'audio/piece_move_01.mp3'],
+  volume: 0.5
+});
+
+var levelend = new Howl({
+  urls: ['audio/level_end.mp3', 'audio/level_end.wav'],
+  volume: 0.5
+});
+
+var levelstart = new Howl({
+  urls: ['audio/level_start_01.mp3', 'audio/level_start_01.wav'],
+  volume: 0.5
+});
+
+var clunk = new Howl({
+  urls: ['audio/piece_place.mp3', 'audio/piece_place.wav'],
+  volume: 0.5
+});
+
 // Utilities
 
 function randint(max){
@@ -91,6 +111,7 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
         });
         this.adjacent = [];
         if(!running){
+            shake.play()
             prevdx = prevdy = 0;
             if (evt.metaKey){
                 this.insertBefore(this.clone().setup());
@@ -100,6 +121,7 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
 
     function onDragEnd(evt){
         if(!running){
+            clunk.play()
             this.snapToGrid();
             this.joinGroup(randcolor());
             selected = this;
@@ -337,13 +359,13 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
     Element.prototype.pulse = function(){
         var dur=this.num('dur') || 1000, color=this.attr('color') || '#00F';
         var easing=this.ease('ease');
-        this.animate({stroke: color, /*strokeWidth: 7*/}, dur, easing, this.unPulse)
+        this.animate({/*stroke: color,*/ /*strokeWidth: 7*/}, dur, easing, this.unPulse)
     };
 
     Element.prototype.unPulse = function(){
         var dur=this.num('dur') || 1000, color='#000';
         var easing=this.ease('ease');
-        this.animate({stroke: color, /*strokeWidth: 5*/}, dur, easing, this.endPulse);
+        this.animate({/*stroke: color,*/ /*strokeWidth: 5*/}, dur, easing, this.endPulse);
     };
 
     Element.prototype.endPulse = function(){
@@ -371,7 +393,7 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
 
     Element.prototype.joinGroup = function(color){
         var self = this;
-        self.attr('stroke', color);
+        //self.attr('stroke', color);
         self.attr('group', '');
         var group = null;
         var connected = [].slice.call(Snap.selectAll('path')).filter(function(e){
@@ -387,13 +409,13 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
                 if (e.attr('group')){
                     group = e.attr('group');
                     self.attr('group', group);
-                    color = e.attr('stroke');
-                    self.attr('stroke', color);
+                    //color = e.attr('stroke');
+                    //self.attr('stroke', color);
                 }else{
                     group = randomId();
                     self.attr('group', group);
                     e.attr('group', group);
-                    e.attr('stroke', color);
+                    //e.attr('stroke', color);
                 }
             }else{
                 if (e.attr('group') === group){

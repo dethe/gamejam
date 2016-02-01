@@ -15,13 +15,14 @@
 <body>
 	<!-- html -->
 	<div id="root"></div>
-	<div class="btn volume fa fa-volume-up" style="top:auto; bottom:20px; left:20px;" onclick="toggleMute(this)"></div>
+	<div class="btn volume fa fa-volume-up" style="top:auto; bottom:20px; left:20px;" onclick="toggleMute(this); levelstart.play()"></div>
 
 	<!-- libraries -->
 	<script src="js/snap.svg-min.js"></script>
 	<script src="js/wad.js"></script>
 	<script src="js/tether.min.js"></script>
 	<script src="js/shepherd.min.js"></script>
+	<script src="js/howler.js"></script>
 
 	<!-- code -->
 	<script src="js/levels.js"></script>
