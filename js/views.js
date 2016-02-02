@@ -65,6 +65,7 @@ views.level_select = {
 views.game = {
 	init: function(){
 		this.s = Snap(0,0)
+		window.paper = this.s;
 		running = false;
 		root_element.innerHTML = 	'<button class="btn back fa fa-chevron-left" onclick="changeView(views.level_select); levelstart.play()"></button>'+
 									'<button class="btn fa fa-rotate-left" style="right:260px;" onclick="if(selected!=undefined && !running){selected.rotate(-90)}; levelstart.play()"></button>'+
@@ -148,8 +149,8 @@ function toggleRun(el){
 						pulse(signal, adj.adjacent[1])
 					}
 				})
-				
-				//closex = 
+
+				//closex =
 				//closey = adj.num('cy')
 			}
 			//console.log(closex, closey)

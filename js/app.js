@@ -61,11 +61,15 @@ function getGroup(id){
 
 }
 
+function rnd(x){
+    return Math.round(x * 1000) / 1000;
+}
+
 function rotatePoint(x, y, angle){
     var s = sin(angle);
     var c = cos(angle);
-    var nx = x * c - y * s;
-    var ny = x * s + y * c;
+    var nx = rnd(x * c - y * s);
+    var ny = rnd(x * s + y * c);
     return [nx, ny];
 }
 
@@ -91,7 +95,7 @@ function randomId() {
 }
 
 Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
-    var prevdx, prevdy;
+    var prevdx = 0, prevdy = 0;
     function onDrag(dx, dy, x, y, evt){
         if(!running){
             if(evt.shiftKey){
@@ -135,8 +139,8 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
             var theta = PI * 2 / num;
             for (var i = 0; i < num; i++){
                 path.push('M', cx, cy,
-                          cos(theta * i) * r + cx,
-                          sin(theta * i) * r + cy);
+                          rnd(cos(theta * i) * r + cx),
+                          rnd(sin(theta * i) * r + cy));
             }
             return path.join(' ');
         },
@@ -144,30 +148,28 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
             var path = ['M'];
             var theta = PI * 2 / num;
             for (var i = 0; i < num; i++){
-                path.push(cos(theta * i) * r + cx,
-                          sin(theta * i) * r + cy);
+                path.push(rnd(cos(theta * i) * r + cx),
+                          rnd(sin(theta * i) * r + cy));
             }
             path.push('Z');
             return path.join(' ');
         },
         polygonPlus: function(cx, cy, r, num){
-            var plus = pathFns.asterisk(cx, cy, r/2, 4);
-            return pathFns.polygon(cx,cy,r,num).concat(plus);
+            return pathFns.polygon(cx,cy,r,num) + ' ' + pathFns.asterisk(cx, cy, r/2, 4);
         },
         polygonMinus: function(cx, cy, r, num){
-            var plus = pathFns.asterisk(cx, cy, r/2, 2);
-            return pathFns.polygon(cx, cy, r, num).concat(plus);
+            return pathFns.polygon(cx, cy, r, num) + ' ' + pathFns.asterisk(cx, cy, r/2, 2);
         },
         crescent: function(cx, cy, r, num){
             var path = ['M'];
             var theta = PI * 2 / num;
             for (var i = 0; i < num; i++){
                 if (i < num/2){
-                    path.push(cos(theta * i) *  r + cx,
-                              sin(theta * i) * r + cy);
+                    path.push(rnd(cos(theta * i) *  r + cx),
+                              rnd(sin(theta * i) * r + cy));
                 }else{
-                    path.push(cos(theta * i) * r + cx,
-                              sin(theta * i)/2 * -r + cy);
+                    path.push(rnd(cos(theta * i) * r + cx),
+                              rnd(sin(theta * i)/2 * -r + cy));
                 }
             }
             path.push('Z');
@@ -179,8 +181,8 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
             var theta = PI * 2 / num * skip;
             var path = ['M'];
             for (var i = 0; i < num; i++){
-                path.push(cos(theta * i) * r + cx,
-                          sin(theta * i) * r + cy);
+                path.push(rnd(cos(theta * i) * r + cx),
+                          rnd(sin(theta * i) * r + cy));
             }
             path.push('Z');
             return path.join(' ');
@@ -190,8 +192,8 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
             var dR = r / (num * len);
             var path = ['M'];
             for (var i = 0; i < (num * len); i++){
-                path.push(cos(theta * i) * (dR * i) + cx,
-                          sin(theta * i) * (dR * i) + cy);
+                path.push(rnd(cos(theta * i) * (dR * i) + cx),
+                          rnd(sin(theta * i) * (dR * i) + cy));
             }
             return path.join(' ');
         },
@@ -202,8 +204,8 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
             var degs = [70, 110, 215, 250, 290, 325];
             var path = ['M'];
             degs.forEach(function(d){
-                path.push(cos(rad(d)) * r + cx,
-                          sin(rad(d)) * r + cy);
+                path.push(rnd(cos(rad(d)) * r + cx),
+                          rnd(sin(rad(d)) * r + cy));
             });
             path.push('Z');
             return path.join(' ');
@@ -298,7 +300,7 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
         return mina[this.attr(name)] || mina.easeinout; // get easing
     };
 
-    Element.prototype.updatePath(fn){
+    Element.prototype.updatePath = function(fn){
         return this.attr('d', Snap.parsePathString(this.attr('d')).map(function(seg){
             if (seg[0] === 'Z'){
                 return seg[0];
@@ -307,12 +309,14 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
             if (seg[0] === 'M'){
                 return [seg[0], p[0], p[1]].join(' ');
             }
-            return p.join(' ');
+            if (seg[0] === 'L'){
+                return p[0] + ' ' + p[1];
+            }
         }).join(' '));
     }
 
     Element.prototype.moveTo = function(cx, cy){
-        var dx = this.num('cx') - cx, dy = this.num('cy') - cy;
+        var dx = cx - this.num('cx'), dy = cy - this.num('cy');
         this.attr({cx: cx, cy: cy});
         this.updatePath(function(x,y){
             return [x+dx, y+dy];
@@ -320,7 +324,8 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
     };
 
     Element.prototype.move = function(dx, dy){
-        this.attr({cx: '+=' + dx, cy: '+=' + dy});
+        var cx = this.num('cx') + dx, cy = this.num('cy') + dy;
+        this.attr({cx: cx, cy: cy});
         this.updatePath(function(x,y){
             return [x+dx, y+dy];
         });
