@@ -5,6 +5,8 @@ var current_level;
 var levels = [
 	{
 		shapes: [
+		    ['hexagram', -225, -150, 25],
+
 			['rpolygon', -150, -150, 25, 20],
 			['crescent', -150, -75, 25, 20],
 			['asterisk', -150, 0, 25, 5],
@@ -30,7 +32,7 @@ var levels = [
             ['coffin', 75, 150, 25],
 
 		],
-		
+
 		pitches: [7, 1, 3]
 	},
 	{

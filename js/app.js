@@ -210,6 +210,16 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
             path.push('Z');
             return path.join(' ');
         },
+        hexagram: function(cx, cy, r){
+            var degs = [30, 210, 90, 330, 150, 270];
+            var path = ['M'];
+            degs.forEach(function(d){
+                path.push(rnd(cos(rad(d)) * r + cx),
+                          rnd(sin(rad(d)) * r + cy));
+            });
+            path.push('Z');
+            return path.join(' ');
+        },
         trigram: function(cx, cy, r, h){
         },
         leaf: function(cx, cy, r){
@@ -263,8 +273,13 @@ Snap.plugin(function (Snap, Element, Paper, global, Fragment) {
     };
 
     Paper.prototype.coffin = function(cx, cy, r){
-        return this.path(pathFns.spiral(cx, cy, r))
+        return this.path(pathFns.coffin(cx, cy, r))
             .attr({cx: cx, cy: cy, type: 'coffin'}).setup();
+    };
+
+    Paper.prototype.hexagram = function(cx, cy, r){
+        return this.path(pathFns.hexagram(cx, cy, r))
+            .attr({cx: cx, cy: cy, type: 'hexagram'}).setup();
     };
 
     // Element extensions
