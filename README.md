@@ -1,5 +1,7 @@
-# Game for Global Game Jam 2016
+# Verve
 
-Theme is "ritual"
+## Unfinished Game for Global Game Jam 2016
 
-Unfinished, untitled sound game built around veve-like composable graphics.
+## Theme of GGJ2016 was "ritual"
+
+Unfinished sound game built around veve-like composable graphics.
